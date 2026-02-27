@@ -1,78 +1,78 @@
-import { Image, StyleSheet, Platform } from "react-native";
-
-import { HelloWave } from "@/components/HelloWave";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
+import React, { useState } from "react";
+import { View, Text, Image, StyleSheet, Alert } from "react-native";
+import { homeFeed } from "@/placeholder";
+import { FlashList } from "@shopify/flash-list";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 export default function HomeScreen() {
+  const [showCaptionId, setShowCaptionId] = useState(null);
+  const lastTap = React.useRef<number | null>(null);
+
+  const handleDoubleTap = (id: string) => {
+    const now = Date.now();
+    if (lastTap.current && now - lastTap.current < 300) {
+      Alert.alert("Double Tap", "Favoriting coming soon!");
+    }
+    lastTap.current = now;
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-      headerImage={
-        <Image
-          source={require("@/assets/images/partial-react-logo.png")}
-          style={styles.reactLogo}
-        />
-      }
-    >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{" "}
-          to see changes. Press{" "}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: "cmd + d",
-              android: "cmd + m",
-              web: "F12",
-            })}
-          </ThemedText>{" "}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this
-          starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{" "}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText>{" "}
-          to get a fresh <ThemedText type="defaultSemiBold">app</ThemedText>{" "}
-          directory. This will move the current{" "}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{" "}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View style={{ flex: 1, backgroundColor: '#070B3A', paddingTop: 32 }}>
+      <FlashList
+        data={homeFeed}
+        renderItem={({ item }) => (
+          <TouchableWithoutFeedback
+            onLongPress={() => setShowCaptionId(item.id)}
+            onPress={() => handleDoubleTap(item.id)}
+          >
+            <View style={styles.imageContainer}>
+              <Image
+                source={{ uri: item.image }}
+                style={styles.feedImage}
+                resizeMode="cover"
+              />
+              {showCaptionId === item.id && (
+                <View style={styles.captionOverlay}>
+                  <Text style={styles.captionText}>Placeholder Caption</Text>
+                </View>
+              )}
+            </View>
+          </TouchableWithoutFeedback>
+        )}
+        estimatedItemSize={420}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
+  imageContainer: {
+    marginBottom: 24,
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: '#1D3D47',
+    position: 'relative',
+    elevation: 2,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  feedImage: {
+    width: '100%',
+    height: 400,
+    borderRadius: 16,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
+  captionOverlay: {
+    position: 'absolute',
     bottom: 0,
     left: 0,
-    position: "absolute",
+    right: 0,
+    backgroundColor: 'rgba(61, 230, 193, 0.85)',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  captionText: {
+    color: '#070B3A',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
