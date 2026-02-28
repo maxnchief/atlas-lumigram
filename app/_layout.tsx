@@ -5,6 +5,19 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
+import { intializeApp } from 'firebase/app';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAhsxo_hANatHoesmDtXhrx8Vo5YIQx9-w",
+  authDomain: "lumigram-562fb.firebaseapp.com",
+  projectId: "lumigram-562fb",
+  storageBucket: "lumigram-562fb.firebasestorage.app",
+  messagingSenderId: "403314247311",
+  appId: "1:403314247311:web:510b64269ed0658a2c52fa",
+  measurementId: "G-YRKVW4R567"
+}
+
+const app = intializeApp(firebaseConfig);
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
