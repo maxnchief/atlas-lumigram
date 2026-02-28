@@ -1,11 +1,35 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { useRouter } from 'expo-router';
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const auth = getAuth();
+
+  const handleSignIn = async () => {
+    setError('');
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      // Signed in
+      const user = userCredential.user;
+      router.replace('/(tabs)');
+    } catch (error) {
+      let message = 'Login failed. Please check your credentials.';
+      if (error && typeof error === 'object' && 'code' in error) {
+        if (error.code === 'auth/invalid-email') {
+          message = 'Invalid email address.';
+        } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+          message = 'Incorrect email or password.';
+        }
+      }
+      setError(message);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -36,9 +60,12 @@ export default function LoginScreen() {
           onChangeText={setPassword}
           secureTextEntry
         />
+        {error ? (
+          <Text style={styles.errorText}>{error}</Text>
+        ) : null}
         <TouchableOpacity
           style={styles.signInButton}
-          onPress={() => router.replace('/(tabs)')}
+          onPress={handleSignIn}
         >
           <Text style={styles.signInText}>Sign in</Text>
         </TouchableOpacity>
@@ -107,5 +134,11 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 20,
     fontWeight: '500',
+  },
+  errorText: {
+    color: '#FF4C4C',
+    fontSize: 16,
+    marginBottom: 8,
+    textAlign: 'center',
   },
 });

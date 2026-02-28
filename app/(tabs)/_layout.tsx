@@ -8,6 +8,23 @@ import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
+// Firebase imports and initialization
+import { initializeApp } from 'firebase/app';
+import { getAuth, signOut } from 'firebase/auth';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAhsxo_hANatHoesmDtXhrx8Vo5YIQx9-w",
+  authDomain: "lumigram-562fb.firebaseapp.com",
+  projectId: "lumigram-562fb",
+  storageBucket: "lumigram-562fb.firebasestorage.app",
+  messagingSenderId: "403314247311",
+  appId: "1:403314247311:web:510b64269ed0658a2c52fa",
+  measurementId: "G-YRKVW4R567"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
@@ -15,7 +32,7 @@ export default function TabLayout() {
     <Tabs
       screenOptions={({ navigation }) => ({
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: true,
+        headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
@@ -24,15 +41,7 @@ export default function TabLayout() {
           },
           default: {},
         }),
-        headerRight: () => (
-          <IconSymbol
-            name="arrow.right.square"
-            size={28}
-            color={Colors[colorScheme ?? 'light'].tint}
-            style={{ marginRight: 16 }}
-            onPress={() => navigation.replace('/login')}
-          />
-        ),
+        // headerRight removed since header is hidden
       })}
     >
       <Tabs.Screen
@@ -40,6 +49,7 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          headerShown: false,
         }}
       />
       <Tabs.Screen
@@ -47,6 +57,7 @@ export default function TabLayout() {
         options={{
           title: 'Search',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="magnifyingglass" color={color} />,
+          headerShown: false,
         }}
       />
       <Tabs.Screen
@@ -54,6 +65,7 @@ export default function TabLayout() {
         options={{
           title: 'Add Post',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="plus.square" color={color} />,
+          headerShown: false,
         }}
       />
       <Tabs.Screen
@@ -61,6 +73,7 @@ export default function TabLayout() {
         options={{
           title: 'Favorites',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="heart.fill" color={color} />,
+          headerShown: false,
         }}
       />
       <Tabs.Screen
@@ -68,6 +81,7 @@ export default function TabLayout() {
         options={{
           title: 'My Profile',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.crop.circle" color={color} />,
+          headerShown: false,
         }}
       />
     </Tabs>
