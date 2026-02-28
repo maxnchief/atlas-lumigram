@@ -5,7 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
-import { intializeApp } from 'firebase/app';
+import { initializeApp } from 'firebase/app';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAhsxo_hANatHoesmDtXhrx8Vo5YIQx9-w",
@@ -17,7 +17,7 @@ const firebaseConfig = {
   measurementId: "G-YRKVW4R567"
 }
 
-const app = intializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
