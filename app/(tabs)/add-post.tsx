@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { storage, db } from '../../constants/firebase';
 import { View, Text, TouchableOpacity, TextInput, Image, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+
+// TODO: Replace with actual user ID from auth context
+const MOCK_USER_ID = 'user_123';
 
 export default function AddPostScreen() {
   const [image, setImage] = useState<string | null>(null);
   const [caption, setCaption] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const pickImage = async () => {
     // Ask for permission
@@ -24,11 +32,36 @@ export default function AddPostScreen() {
     }
   };
 
-  const handleSave = () => {
-    // Save post logic here
-    alert('Post saved!');
-    setImage(null);
-    setCaption('');
+  const [uploading, setUploading] = useState(false);
+
+  const handleSave = async () => {
+    if (!image) return;
+    setUploading(true);
+    setError(null);
+    try {
+      // Upload image to Firebase Storage
+      const response = await fetch(image);
+      const blob = await response.blob();
+      const imageName = `${MOCK_USER_ID}_${Date.now()}`;
+      const storageRef = ref(storage, `posts/${imageName}`);
+      await uploadBytes(storageRef, blob);
+      const imageUrl = await getDownloadURL(storageRef);
+
+      // Save post to Firestore
+      await addDoc(collection(db, 'posts'), {
+        imageUrl,
+        caption,
+        createdAt: serverTimestamp(),
+        createdBy: MOCK_USER_ID,
+      });
+
+      alert('Post saved!');
+      setImage(null);
+      setCaption('');
+    } catch (err) {
+      setError('Error uploading post: ' + (err?.message || err));
+    }
+    setUploading(false);
   };
 
   const handleReset = () => {
@@ -69,12 +102,17 @@ export default function AddPostScreen() {
           />
         </View>
         <TouchableOpacity
-          style={[styles.saveButton, (!image || !caption.trim()) && styles.saveButtonDisabled]}
+          style={[styles.saveButton, (!image || !caption.trim() || uploading) && styles.saveButtonDisabled]}
           onPress={handleSave}
-          disabled={!image || !caption.trim()}
+          disabled={!image || !caption.trim() || uploading}
         >
-          <Text style={styles.saveButtonText}>Save</Text>
+          <Text style={styles.saveButtonText}>{uploading ? 'Uploading...' : 'Save'}</Text>
         </TouchableOpacity>
+        {error && (
+          <View style={{ marginHorizontal: 20, marginTop: 8 }}>
+            <Text style={{ color: 'red', fontSize: 16 }}>{error}</Text>
+          </View>
+        )}
         <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
           <Text style={styles.resetButtonText}>Reset</Text>
         </TouchableOpacity>
